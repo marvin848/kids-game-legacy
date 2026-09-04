@@ -120,7 +120,7 @@
     <h1>Hi, Avalyn!</h1>
     <p>Pick a game to play.</p>
     <div class="levels" id="games"></div>
-    <small style="color:#9aa3ad;font-size:12px">version 10</small>
+    <small style="color:#9aa3ad;font-size:12px">version 11</small>
   </section>
 
   <!-- LEVEL PICKER -->
@@ -205,23 +205,23 @@ const P={
   heart:(c=C.red)=>`<path d="M0 36 C-46 4 -30 -40 0 -14 C30 -40 46 4 0 36 Z" fill="${c}" ${S}/>`,
   moon:()=>`<path d="M10 -40 A40 40 0 1 0 10 40 A30 30 0 1 1 10 -40 Z" fill="${C.yellow}" ${S}/>`,
   ant:()=>ell(-24,4,22,16,C.black)+circ(0,4,9,C.black)+ell(22,4,24,18,C.black)+[-6,0,6].map(x=>line(x,8,x-4,26,'#222',2.5)).join('')+[-6,0,6].map(x=>line(x,8,x+8,-14,'#222',2.5)).join(''),
-  coin:()=>circ(0,0,36,C.yellow)+circ(0,0,27,'none')+`<text x="0" y="12" font-size="34" text-anchor="middle" font-family="Arial" font-weight="bold" fill="#8a6d00">1</text>`,
+  coin:()=>circ(0,0,36,C.yellow)+circ(0,0,23,C.yellow),
   pencil:()=>poly([[-44,-8],[24,-8],[24,8],[-44,8]],C.yellow)+poly([[24,-8],[44,0],[24,8]],C.tan)+poly([[38,-2.5],[44,0],[38,2.5]],C.black)+rectp(-38,0,12,16,C.pink),
   mountain:()=>poly([[-46,36],[46,36],[0,-42]],C.gray)+poly([[-14,-18],[14,-18],[0,-42]],C.white),
-  cat:()=>poly([[-34,-14],[-30,-44],[-8,-24]],C.gray)+poly([[34,-14],[30,-44],[8,-24]],C.gray)+circ(0,0,34,C.gray)+circ(-12,-6,5,C.white)+circ(12,-6,5,C.white)+circ(-12,-6,2.5,C.black)+circ(12,-6,2.5,C.black)+poly([[-5,6],[5,6],[0,11]],C.pink)+line(-40,8,-12,10,'#222',1.5)+line(-40,18,-12,13,'#222',1.5)+line(40,8,12,10,'#222',1.5)+line(40,18,12,13,'#222',1.5),
-  corn:()=>`<path d="M-8 -46 C-38 -20 -38 30 -6 46 C26 30 26 -20 -8 -46 Z" fill="${C.yellow}" ${S}/>`+[-24,-8,8,24].map(y=>line(-24,y,10,y,'#c9962a',1.5)).join('')+line(-7,-40,-7,40,'#c9962a',1.5)+`<path d="M-6 46 C-40 40 -46 0 -30 -30 C-24 10 -18 30 -6 46 Z" fill="${C.green}" ${S}/><path d="M-6 46 C30 44 42 10 30 -26 C22 8 12 30 -6 46 Z" fill="${C.green}" ${S}/>`,
-  cake:()=>rectp(0,14,74,44,C.pink)+rectp(0,-6,74,10,C.white)+rectp(0,-16,10,22,C.blue)+`<path d="M0 -34 C-6 -26 6 -26 0 -40 Z" fill="${C.orange}" ${S}/>`+[-24,0,24].map(x=>circ(x,22,4,C.red)).join(''),
-  cap:(c=C.blue)=>`<path d="M-34 6 A34 34 0 0 1 34 6 Z" fill="${c}" ${S}/>`+rectp(4,10,90,10,c,4)+line(0,-28,0,6,'#222',1.5),
-  candle:()=>rectp(0,10,20,66,C.yellow)+`<path d="M0 -44 C-9 -32 -6 -26 0 -24 C6 -26 9 -32 0 -44 Z" fill="${C.orange}" ${S}/>`+rectp(0,-24,3,4,C.black)+ell(0,44,50,10,C.blue),
-  carrot:()=>poly([[-6,-8],[6,-8],[0,46]],C.orange)+`<path d="M-6 -8 A6 6 0 0 1 6 -8 Z" fill="${C.orange}" ${S}/>`+line(0,-8,-14,-40,C.green,4)+line(0,-8,0,-44,C.green,4)+line(0,-8,14,-40,C.green,4),
-  can:()=>rectp(0,0,54,72,C.red,6)+ell(0,-36,54,14,'#c9d3dc')+rectp(0,4,54,26,C.white,0)+`<text x="0" y="12" font-size="20" text-anchor="middle" font-family="Arial" font-weight="bold" fill="${C.red}">SOUP</text>`,
-  cookie:()=>circ(0,0,38,C.tan)+[[-14,-10],[10,-16],[16,8],[-8,14],[0,0]].map(([a,b])=>circ(a,b,4.5,C.brown)).join(''),
+  cat:()=>poly([[-32,-16],[-28,-46],[-6,-26]],C.gray)+poly([[32,-16],[28,-46],[6,-26]],C.gray)+circ(0,0,34,C.gray)+circ(-13,-5,5,C.black)+circ(13,-5,5,C.black)+poly([[-7,7],[7,7],[0,14]],C.pink),
+  corn:()=>`<path d="M0 46 C-34 38 -42 2 -28 -26 C-20 12 -12 32 0 46 Z" fill="${C.green}" ${S}/><path d="M0 46 C34 38 42 2 28 -26 C20 12 12 32 0 46 Z" fill="${C.green}" ${S}/><path d="M0 -46 C-26 -22 -26 24 0 44 C26 24 26 -22 0 -46 Z" fill="${C.yellow}" ${S}/>`,
+  cake:()=>rectp(0,16,74,40,C.pink)+rectp(0,-8,74,14,C.white)+rectp(0,-22,10,18,C.blue)+`<path d="M0 -31 C-8 -22 8 -22 0 -42 Z" fill="${C.orange}" ${S}/>`,
+  cap:(c=C.blue)=>`<path d="M-34 8 A34 34 0 0 1 34 8 Z" fill="${c}" ${S}/>`+rectp(6,13,88,12,c,5),
+  candle:()=>rectp(0,8,22,62,C.yellow)+ell(0,42,52,13,C.blue)+`<path d="M0 -40 C-9 -29 -6 -23 0 -21 C6 -23 9 -29 0 -40 Z" fill="${C.orange}" ${S}/>`,
+  carrot:()=>line(0,-10,-15,-42,C.green,7)+line(0,-10,0,-46,C.green,7)+line(0,-10,15,-42,C.green,7)+poly([[-15,-12],[15,-12],[0,46]],C.orange),
+  can:()=>rectp(0,6,54,66,C.red,5)+rectp(0,6,54,24,C.white,0)+ell(0,-27,54,14,C.yellow),
+  cookie:()=>circ(0,0,38,C.tan)+[[-15,-11],[11,-17],[17,9],[-9,15],[0,-1]].map(([a,b])=>circ(a,b,5,C.brown)).join(''),
   cloud:()=>`<path d="M-30 20 A16 16 0 0 1 -24 -12 A20 20 0 0 1 12 -22 A16 16 0 0 1 34 0 A14 14 0 0 1 28 22 Z" fill="#dfe8f2" ${S}/>`,
   cactus:()=>poly([[-24,46],[24,46],[20,30],[-20,30]],C.orange)+rectp(0,-2,22,64,C.green,10)+rectp(-22,-6,12,30,C.green,6)+rectp(22,2,12,30,C.green,6)+line(-22,-20,-22,-4,C.green,12)+line(22,-12,22,4,C.green,12),
   spoon:()=>rectp(12,6,8,64,'#c9d3dc',3)+ell(-14,-22,32,42,'#c9d3dc'),
   fork:()=>rectp(0,14,8,56,'#c9d3dc',3)+rectp(0,-18,30,10,'#c9d3dc',2)+[-12,-4,4,12].map(x=>rectp(x,-32,5,26,'#c9d3dc',2)).join(''),
   bowl:(c=C.red)=>`<path d="M-42 -10 L42 -10 A42 42 0 0 1 -42 -10 Z" fill="${c}" ${S}/>`+ell(0,-10,84,14,C.white)+rectp(0,34,30,6,c),
-  basket:()=>`<path d="M-40 -6 L40 -6 L32 34 L-32 34 Z" fill="${C.tan}" ${S}/>`+[-24,-12,0,12,24].map(x=>line(x,-6,x*0.8,34,C.brown,1.2)).join('')+[8,22].map(y=>line(-38,y,38,y,C.brown,1.2)).join('')+`<path d="M-26 -6 A26 26 0 0 1 26 -6" fill="none" stroke="${C.brown}" stroke-width="5"/>`,
+  basket:()=>`<path d="M-40 -6 L40 -6 L32 34 L-32 34 Z" fill="${C.tan}" ${S}/>`+[6,20].map(y=>line(-37+y*0.15,y,37-y*0.15,y,C.brown,2.4)).join('')+`<path d="M-26 -6 A26 26 0 0 1 26 -6" fill="none" stroke="#222" stroke-width="2.8"/>`,
   egg:()=>`<path d="M0 -42 C-30 -42 -34 10 -22 30 C-14 46 14 46 22 30 C34 10 30 -42 0 -42 Z" fill="#fff6e0" ${S}/>`,
   hat:()=>ell(0,26,90,18,C.brown)+rectp(0,-4,50,50,C.brown,4)+rectp(0,14,50,8,C.red),
 };

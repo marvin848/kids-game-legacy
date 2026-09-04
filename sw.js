@@ -1,5 +1,5 @@
 // Offline cache for the Shape Game. Network-first: shows new versions right away, falls back to cache offline.
-const CACHE = 'kids-game-legacy-v10';
+const CACHE = 'kids-game-legacy-v11';
 const FILES = ['./', './index.html', './manifest.webmanifest'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
