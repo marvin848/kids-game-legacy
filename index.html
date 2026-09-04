@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Avalyn's Learning Games</title>
+<!-- v5 --><!-- Fully self-contained: no internet needed. All pictures are inline SVG, no external fonts or scripts. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Shape Game">
+<meta name="theme-color" content="#3B7DD8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Crect x='-50' y='-50' width='100' height='100' rx='22' fill='%233B7DD8'/%3E%3Cpolygon points='0,-40 12,-12 40,-12 18,6 26,34 0,18 -26,34 -18,6 -40,-12 -12,-12' fill='%23F2C230' stroke='%23222' stroke-width='3'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --paper:#FFFDF6; --ink:#2B2A33; --sky:#3B7DD8; --sun:#F2C230; --grass:#7DBB3A;
+    --berry:#D9483B; --grape:#8E4A9E; --tangerine:#F08A2C; --line:#F7B24A;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  html,body{margin:0;height:100%;background:#E8F1FB url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1.6' fill='%23c6d9ef'/%3E%3C/svg%3E");
+    font-family:"Arial Rounded MT Bold","Nunito","Segoe UI Rounded","Trebuchet MS",system-ui,sans-serif;color:var(--ink)}
+  body{display:flex;justify-content:center;padding:12px}
+  .board{width:100%;max-width:960px;background:var(--paper);border-radius:28px;padding:18px 20px 22px;
+    box-shadow:0 10px 0 #d3b26c,0 16px 30px rgba(60,80,120,.18);display:flex;flex-direction:column;gap:14px;min-height:calc(100vh - 24px);min-height:calc(100dvh - 24px)}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+  .tab{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tab{background:var(--sky);color:#fff;border-radius:16px 16px 6px 16px;padding:8px 14px;font-size:15px;line-height:1.2}
+  .tab b{display:block;font-size:18px}
+  .stars{flex:1 1 0;min-width:0;display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px;max-width:470px;margin-left:auto}
+  .stars span{display:block;width:100%;aspect-ratio:1;min-width:0}
+  .stars span svg{width:100%;height:100%;display:block}
+  .stars span svg{width:100%;height:100%}
+  .say{display:flex;align-items:center;gap:12px;background:#fff;border:3px solid var(--line);border-radius:20px;padding:12px 14px}
+  .say button{flex:none;width:66px;height:66px;border-radius:50%;border:0;background:var(--sun);font-size:26px;cursor:pointer;
+    box-shadow:0 4px 0 #c99a12;transition:transform .1s}
+  .say button:active{transform:translateY(3px);box-shadow:0 1px 0 #c99a12}
+  .say button:focus-visible{outline:4px solid var(--sky)}
+  .say p{margin:0;font-size:clamp(19px,2.4vw,25px);line-height:1.35}
+  .arena{flex:1;display:flex;flex-direction:column;gap:14px;justify-content:center}
+  .ref{display:flex;align-items:center;gap:14px;color:#777;font-size:16px}
+  .refbox{width:clamp(110px,22vw,180px);aspect-ratio:1;border:4px solid var(--line);border-radius:18px;background:#fff;padding:10px}
+  .refbox svg{width:100%;height:100%;display:block}
+  .choice svg{width:100%;max-width:100%;height:clamp(96px,24vh,230px);display:block}
+  .choices.four .choice svg{height:clamp(84px,20vh,200px)}
+  .choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;flex:0 0 auto;min-width:0}
+  .choices.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .choices.grid6{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .choices.grid6 .choice svg{height:clamp(80px,15vh,150px)}
+  @media (max-width:560px){.choices.four{grid-template-columns:repeat(2,minmax(0,1fr))}.choices.four .choice{min-height:150px}}
+  .choice{position:relative;min-width:0;overflow:hidden;background:#fff;border:4px solid #dfe6ef;border-radius:22px;padding:14px 10px 58px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;transition:transform .12s,border-color .12s}
+  .choice:hover{border-color:#b7c9e0}
+  .choice:focus-visible{outline:4px solid var(--sky);outline-offset:2px}
+  .choice .bubble{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);width:34px;height:34px;border-radius:50%;
+    border:3px solid #8a8f98;background:#fff;transition:background .15s}
+  .choice.right{border-color:var(--grass);background:#F3FAEA;animation:pop .35s}
+  .choice.right .bubble{background:var(--grass);border-color:var(--grass)}
+  .choice.wrong{border-color:#f0c4be;animation:shake .4s}
+  .choice.wrong .bubble{background:#f0c4be;border-color:#f0c4be}
+  .choice.dim{opacity:.45;pointer-events:none}
+  .choice.locked{pointer-events:none}
+  .feedback{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:clamp(18px,3vw,24px)}
+  .feedback .msg{flex:1}
+  .next{border:0;background:var(--grass);color:#fff;font:inherit;font-size:22px;padding:16px 34px;min-height:58px;border-radius:999px;cursor:pointer;
+    box-shadow:0 5px 0 #5a8f25;transition:transform .1s;opacity:0;pointer-events:none}
+  .next.show{opacity:1;pointer-events:auto}
+  .next:active{transform:translateY(3px);box-shadow:0 2px 0 #5a8f25}
+  .next:focus-visible{outline:4px solid var(--sky)}
+  .pad{position:relative;display:flex;justify-content:center;min-width:0;border:4px solid var(--line);border-radius:22px;background:#fff;touch-action:none;user-select:none;-webkit-user-select:none}
+  .pad svg{display:block;border-radius:18px;aspect-ratio:100/78;width:min(100%, calc((100dvh - 390px) * 100 / 78));height:auto}
+  .padbar{display:flex;justify-content:flex-end}
+  .clear{border:0;background:#eef2f7;color:var(--ink);font:inherit;font-size:18px;padding:12px 22px;border-radius:999px;cursor:pointer;box-shadow:0 4px 0 #c9d3e0}
+  .clear:active{transform:translateY(3px);box-shadow:0 1px 0 #c9d3e0}
+  .choice.picked{border-color:var(--sky);background:#EEF5FD}
+  .choice.picked .bubble{background:var(--sky);border-color:var(--sky)}
+  .choice .nm{position:absolute;top:8px;right:10px;width:30px;height:30px;border-radius:50%;background:var(--sun);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 0 #c99a12}
+  .lvl.g{background:var(--sky);box-shadow:0 5px 0 #2a5ea6}
+  .lvl.g2{background:var(--tangerine);box-shadow:0 5px 0 #b5621a}
+  .lvl.l0{background:var(--grass);box-shadow:0 5px 0 #5a8f25}.lvl.l1{background:var(--sky);box-shadow:0 5px 0 #2a5ea6}.lvl.l2{background:var(--tangerine);box-shadow:0 5px 0 #b5621a}
+  .lvl.l3{background:var(--grape);box-shadow:0 5px 0 #5f2d6b}.lvl.l4{background:var(--berry);box-shadow:0 5px 0 #9c2f25}.lvl.l5{background:#1FA3A3;box-shadow:0 5px 0 #14706f}
+  .arena.tracing .pad svg{width:min(100%, calc((100dvh - 560px) * 100 / 78))}
+  .arena.tracing .refbox{width:clamp(90px,14vh,140px)}
+  .hidden{display:none!important}
+  .finish{text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;flex:1;justify-content:center}
+  .finish h1{margin:0;font-size:clamp(30px,6vw,46px)}
+  .finish .big{font-size:clamp(20px,3.5vw,28px)}
+  .finish .row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:520px}
+  .finish .row span{width:34px;height:34px}
+  .finish .row span svg{width:100%;height:100%}
+  .review{width:100%;max-width:560px;text-align:left;font-size:15px;color:#555;background:#fff;border:3px solid var(--line);border-radius:18px;padding:12px 16px}
+  .review b{color:var(--ink)}
+  .start{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;flex:1;text-align:center}
+  .start h1{margin:0;font-size:clamp(34px,7vw,56px);letter-spacing:-.5px}
+  .start p{max-width:420px;margin:0;font-size:18px;line-height:1.4;color:#555}
+  .start .toys{display:flex;gap:14px}
+  .levels{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:420px}
+  .lvl{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 10px;border-radius:20px}
+  .lvl small{font-size:13px;opacity:.9;font-weight:normal}
+  
+  .start .toys span{width:64px;height:64px}
+  .start .toys span svg{width:100%;height:100%}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  @media (max-width:480px){.board{padding:14px 12px 18px}.stars{max-width:100%}}
+  @media (orientation:portrait) and (min-width:700px){.choice svg{height:clamp(120px,26vw,270px)}.choices.four .choice svg{height:clamp(100px,18vw,200px)}.refbox{width:clamp(140px,26vw,220px)}.say p{font-size:26px}.arena{gap:22px}}
+  @media (max-height:700px){.choice svg{height:clamp(80px,20vh,150px)}.refbox{width:clamp(90px,14vh,120px)}}
+</style>
+</head>
+<body>
+<div class="board">
+  <header>
+    <div class="tab"><b>Avalyn's Learning Games</b><span id="where">Let's play</span></div>
+    <div class="stars" id="stars"></div>
+  </header>
+
+  <!-- HOME: pick a game -->
+  <section class="start" id="home">
+    <div class="toys" id="toys"></div>
+    <h1>Hi, Avalyn!</h1>
+    <p>Pick a game to play.</p>
+    <div class="levels" id="games"></div>
+    <small style="color:#9aa3ad;font-size:12px">version 10</small>
+  </section>
+
+  <!-- LEVEL PICKER -->
+  <section class="start hidden" id="start">
+    <h1 id="gameTitle"></h1>
+    <p id="gameBlurb"></p>
+    <div class="levels" id="levels"></div>
+    <button class="clear" id="backHome">Back to games</button>
+  </section>
+
+  <!-- QUESTION -->
+  <section class="arena hidden" id="q">
+    <div class="say">
+      <button id="speak" aria-label="Read the directions out loud">🔊</button>
+      <p id="prompt"></p>
+    </div>
+    <div class="ref" id="refwrap"><div class="refbox" id="ref"></div><span>Look at this first</span></div>
+    <div class="choices" id="choices"></div>
+    <div class="pad hidden" id="pad"></div>
+    <div class="padbar hidden" id="padbar"><button class="clear" id="clear">Clear my drawing</button></div>
+    <div class="feedback"><div class="msg" id="msg"></div><button class="next" id="doneBtn" style="background:var(--sky);box-shadow:0 5px 0 #2a5ea6">I'm done</button><button class="next" id="next">Next</button></div>
+  </section>
+
+  <!-- FINISH -->
+  <section class="finish hidden" id="done">
+    <h1 id="doneTitle">All done!</h1>
+    <div class="row" id="doneStars"></div>
+    <div class="big" id="doneScore"></div>
+    <div class="review" id="review"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center"><button class="next show" id="again">Play again</button><button class="next show" id="other" style="background:var(--sky);box-shadow:0 5px 0 #2a5ea6">Next level</button><button class="clear" id="doneHome">All games</button></div>
+  </section>
+</div>
+
+<script>
+/* ---------- colors ---------- */
+const C={red:'#D9483B',blue:'#3B7DD8',yellow:'#F2C230',green:'#7DBB3A',purple:'#8E4A9E',orange:'#F08A2C',brown:'#8B5A2B',pink:'#E87BAF',gray:'#6b6b6b',tan:'#E8C79A',white:'#fff',black:'#222'};
+const S='stroke="#222" stroke-width="2.4" stroke-linejoin="round"';
+
+/* ---------- primitive SVG pieces (100x100 box, center 0,0, y down) ---------- */
+const svg=(inner,vb='-50 -50 100 100')=>`<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${inner}</svg>`;
+const circ=(x,y,r,f)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}" ${S}/>`;
+const rectp=(x,y,w,h,f,rx=2)=>`<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="${rx}" fill="${f}" ${S}/>`;
+const ell=(x,y,w,h,f)=>`<ellipse cx="${x}" cy="${y}" rx="${w/2}" ry="${h/2}" fill="${f}" ${S}/>`;
+const poly=(pts,f)=>`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="${f}" ${S}/>`;
+const tri=(x,y,s,f)=>poly([[x,y-s*.58],[x-s/2,y+s*.42],[x+s/2,y+s*.42]],f);
+const hexa=(x,y,s,f)=>poly([0,60,120,180,240,300].map(a=>[x+s/2*Math.cos(a*Math.PI/180),y+s/2*Math.sin(a*Math.PI/180)]),f);
+const star=(x,y,s,f)=>poly([...Array(10)].map((_,i)=>{const r=i%2?s/5:s/2,a=(-90+i*36)*Math.PI/180;return[x+r*Math.cos(a),y+r*Math.sin(a)]}),f);
+const line=(x1,y1,x2,y2,c,w)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+
+/* ---------- picture icons ---------- */
+const P={
+  apple:(c=C.red)=>circ(0,4,36,c)+line(0,-30,0,-46,C.brown,5)+ell(12,-42,20,10,C.green),
+  ball:(c=C.blue)=>circ(0,0,38,c)+circ(-13,-13,8,C.white),
+  cup:(c=C.blue)=>poly([[-26,-36],[26,-36],[19,36],[-19,36]],c)+`<ellipse cx="29" cy="-6" rx="10" ry="15" fill="none" stroke="#222" stroke-width="5"/>`,
+  sun:()=>[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;return line(28*Math.cos(r),28*Math.sin(r),44*Math.cos(r),44*Math.sin(r),C.orange,4)}).join('')+circ(0,0,24,C.yellow),
+  leaf:(c=C.green)=>`<path d="M-38 30 C-26 -42 26 -42 38 -30 C26 42 -26 42 -38 30 Z" fill="${c}" ${S}/>`+line(-38,30,38,-30,'#222',2),
+  fish:()=>ell(-5,0,56,34,C.orange)+poly([[22,0],[44,-22],[44,22]],C.orange)+circ(-22,-5,3.5,C.black),
+  house:(c=C.red)=>rectp(0,12,60,44,C.tan)+poly([[-38,-8],[38,-8],[0,-44]],c)+rectp(0,22,14,24,C.brown)+rectp(-19,4,12,12,C.blue)+rectp(19,4,12,12,C.blue),
+  tree:()=>rectp(0,30,12,28,C.brown)+circ(0,-8,32,C.green),
+  bus:()=>`<rect x="-42" y="-20" width="84" height="40" rx="8" fill="${C.yellow}" ${S}/>`+[-29,-10,9,28].map(x=>rectp(x,-8,13,13,C.blue)).join('')+circ(-24,24,8,C.black)+circ(24,24,8,C.black),
+  boat:()=>poly([[-40,14],[40,14],[26,36],[-26,36]],C.brown)+line(0,14,0,-44,'#222',3)+poly([[3,8],[3,-40],[34,8]],C.red),
+  button:(c=C.blue)=>circ(0,0,36,c)+[[-1,1],[1,1],[-1,-1],[1,-1]].map(([a,b])=>circ(a*11,b*11,3.6,C.black)).join(''),
+  ladybug:()=>circ(0,-28,13,C.black)+ell(0,4,62,58,C.red)+line(0,-24,0,33,'#222',2.5)+[[-15,-9],[15,-9],[-18,13],[18,13]].map(([a,b])=>circ(a,b,4.5,C.black)).join(''),
+  key:()=>circ(-22,0,16,C.yellow)+circ(-22,0,6,C.white)+rectp(9,0,44,9,C.yellow)+rectp(20,9,7,11,C.yellow)+rectp(29,9,7,11,C.yellow),
+  balloon:(c=C.red)=>ell(0,-8,50,62,c)+`<path d="M0 23 Q-6 34 -4 44" fill="none" stroke="#222" stroke-width="2"/>`,
+  iceCream:()=>poly([[-25,-4],[25,-4],[0,44]],C.tan)+circ(0,-18,26,C.pink),
+  partyHat:()=>poly([[-27,40],[27,40],[0,-36]],C.orange)+[[-7,27],[9,13],[-3,-4],[11,31]].map(([a,b])=>circ(a,b,3,C.purple)).join('')+circ(0,-38,6,C.red),
+  book:(c=C.green)=>rectp(0,0,54,72,c)+line(-20,-36,-20,36,'#222',1.8),
+  gift:()=>rectp(0,0,68,68,C.blue)+rectp(0,0,68,12,C.yellow)+rectp(0,0,12,68,C.yellow),
+  clock:()=>circ(0,0,40,C.white)+line(0,0,0,-26,'#222',3)+line(0,0,18,0,'#222',3)+circ(0,0,3,C.black),
+  orange:()=>circ(0,0,36,C.orange)+ell(7,-37,20,9,C.green),
+  // plain shapes
+  circle:(c,k=1)=>circ(0,0,36*k,c),
+  square:(c,k=1)=>rectp(0,0,66*k,66*k,c),
+  rectangle:(c,k=1)=>rectp(0,0,84*k,50*k,c),
+  triangle:(c,k=1)=>tri(0,0,80*k,c),
+  hexagon:(c,k=1)=>hexa(0,0,80*k,c),
+  star:(c)=>star(0,0,84,c),
+  flower:()=>line(0,10,0,44,C.green,4)+[0,72,144,216,288].map(a=>{const r=(a-90)*Math.PI/180;return ell(20*Math.cos(r),-4+20*Math.sin(r),22,22,C.pink)}).join('')+circ(0,-4,11,C.yellow),
+  car:(c=C.red)=>`<rect x="-42" y="-4" width="84" height="26" rx="6" fill="${c}" ${S}/>`+poly([[-26,-4],[-14,-26],[16,-26],[28,-4]],c)+rectp(-4,-15,20,14,'#bfe3ff')+circ(-24,24,9,C.black)+circ(24,24,9,C.black),
+  kite:()=>poly([[0,-44],[26,-6],[0,32],[-26,-6]],C.purple)+line(0,-44,0,32,'#222',1.5)+line(-26,-6,26,-6,'#222',1.5)+`<path d="M0 32 Q-8 40 -14 46" fill="none" stroke="#222" stroke-width="2"/>`,
+  heart:(c=C.red)=>`<path d="M0 36 C-46 4 -30 -40 0 -14 C30 -40 46 4 0 36 Z" fill="${c}" ${S}/>`,
+  moon:()=>`<path d="M10 -40 A40 40 0 1 0 10 40 A30 30 0 1 1 10 -40 Z" fill="${C.yellow}" ${S}/>`,
+  ant:()=>ell(-24,4,22,16,C.black)+circ(0,4,9,C.black)+ell(22,4,24,18,C.black)+[-6,0,6].map(x=>line(x,8,x-4,26,'#222',2.5)).join('')+[-6,0,6].map(x=>line(x,8,x+8,-14,'#222',2.5)).join(''),
+  coin:()=>circ(0,0,36,C.yellow)+circ(0,0,27,'none')+`<text x="0" y="12" font-size="34" text-anchor="middle" font-family="Arial" font-weight="bold" fill="#8a6d00">1</text>`,
+  pencil:()=>poly([[-44,-8],[24,-8],[24,8],[-44,8]],C.yellow)+poly([[24,-8],[44,0],[24,8]],C.tan)+poly([[38,-2.5],[44,0],[38,2.5]],C.black)+rectp(-38,0,12,16,C.pink),
+  mountain:()=>poly([[-46,36],[46,36],[0,-42]],C.gray)+poly([[-14,-18],[14,-18],[0,-42]],C.white),
+  cat:()=>poly([[-34,-14],[-30,-44],[-8,-24]],C.gray)+poly([[34,-14],[30,-44],[8,-24]],C.gray)+circ(0,0,34,C.gray)+circ(-12,-6,5,C.white)+circ(12,-6,5,C.white)+circ(-12,-6,2.5,C.black)+circ(12,-6,2.5,C.black)+poly([[-5,6],[5,6],[0,11]],C.pink)+line(-40,8,-12,10,'#222',1.5)+line(-40,18,-12,13,'#222',1.5)+line(40,8,12,10,'#222',1.5)+line(40,18,12,13,'#222',1.5),
+  corn:()=>`<path d="M-8 -46 C-38 -20 -38 30 -6 46 C26 30 26 -20 -8 -46 Z" fill="${C.yellow}" ${S}/>`+[-24,-8,8,24].map(y=>line(-24,y,10,y,'#c9962a',1.5)).join('')+line(-7,-40,-7,40,'#c9962a',1.5)+`<path d="M-6 46 C-40 40 -46 0 -30 -30 C-24 10 -18 30 -6 46 Z" fill="${C.green}" ${S}/><path d="M-6 46 C30 44 42 10 30 -26 C22 8 12 30 -6 46 Z" fill="${C.green}" ${S}/>`,
+  cake:()=>rectp(0,14,74,44,C.pink)+rectp(0,-6,74,10,C.white)+rectp(0,-16,10,22,C.blue)+`<path d="M0 -34 C-6 -26 6 -26 0 -40 Z" fill="${C.orange}" ${S}/>`+[-24,0,24].map(x=>circ(x,22,4,C.red)).join(''),
+  cap:(c=C.blue)=>`<path d="M-34 6 A34 34 0 0 1 34 6 Z" fill="${c}" ${S}/>`+rectp(4,10,90,10,c,4)+line(0,-28,0,6,'#222',1.5),
+  candle:()=>rectp(0,10,20,66,C.yellow)+`<path d="M0 -44 C-9 -32 -6 -26 0 -24 C6 -26 9 -32 0 -44 Z" fill="${C.orange}" ${S}/>`+rectp(0,-24,3,4,C.black)+ell(0,44,50,10,C.blue),
+  carrot:()=>poly([[-6,-8],[6,-8],[0,46]],C.orange)+`<path d="M-6 -8 A6 6 0 0 1 6 -8 Z" fill="${C.orange}" ${S}/>`+line(0,-8,-14,-40,C.green,4)+line(0,-8,0,-44,C.green,4)+line(0,-8,14,-40,C.green,4),
+  can:()=>rectp(0,0,54,72,C.red,6)+ell(0,-36,54,14,'#c9d3dc')+rectp(0,4,54,26,C.white,0)+`<text x="0" y="12" font-size="20" text-anchor="middle" font-family="Arial" font-weight="bold" fill="${C.red}">SOUP</text>`,
+  cookie:()=>circ(0,0,38,C.tan)+[[-14,-10],[10,-16],[16,8],[-8,14],[0,0]].map(([a,b])=>circ(a,b,4.5,C.brown)).join(''),
+  cloud:()=>`<path d="M-30 20 A16 16 0 0 1 -24 -12 A20 20 0 0 1 12 -22 A16 16 0 0 1 34 0 A14 14 0 0 1 28 22 Z" fill="#dfe8f2" ${S}/>`,
+  cactus:()=>poly([[-24,46],[24,46],[20,30],[-20,30]],C.orange)+rectp(0,-2,22,64,C.green,10)+rectp(-22,-6,12,30,C.green,6)+rectp(22,2,12,30,C.green,6)+line(-22,-20,-22,-4,C.green,12)+line(22,-12,22,4,C.green,12),
+  spoon:()=>rectp(12,6,8,64,'#c9d3dc',3)+ell(-14,-22,32,42,'#c9d3dc'),
+  fork:()=>rectp(0,14,8,56,'#c9d3dc',3)+rectp(0,-18,30,10,'#c9d3dc',2)+[-12,-4,4,12].map(x=>rectp(x,-32,5,26,'#c9d3dc',2)).join(''),
+  bowl:(c=C.red)=>`<path d="M-42 -10 L42 -10 A42 42 0 0 1 -42 -10 Z" fill="${c}" ${S}/>`+ell(0,-10,84,14,C.white)+rectp(0,34,30,6,c),
+  basket:()=>`<path d="M-40 -6 L40 -6 L32 34 L-32 34 Z" fill="${C.tan}" ${S}/>`+[-24,-12,0,12,24].map(x=>line(x,-6,x*0.8,34,C.brown,1.2)).join('')+[8,22].map(y=>line(-38,y,38,y,C.brown,1.2)).join('')+`<path d="M-26 -6 A26 26 0 0 1 26 -6" fill="none" stroke="${C.brown}" stroke-width="5"/>`,
+  egg:()=>`<path d="M0 -42 C-30 -42 -34 10 -22 30 C-14 46 14 46 22 30 C34 10 30 -42 0 -42 Z" fill="#fff6e0" ${S}/>`,
+  hat:()=>ell(0,26,90,18,C.brown)+rectp(0,-4,50,50,C.brown,4)+rectp(0,14,50,8,C.red),
+};
+const pic=(name,...a)=>svg(P[name](...a));
+const picr=(rot,name,...a)=>svg(`<g transform="rotate(${rot})">${P[name](...a)}</g>`);
+
+/* sorting groups: two ovals, each with a list of [shape,color] */
+function group(left,right){
+  const oval=(cx,items)=>{const n=items.length,step=90/(n+1);
+    return `<ellipse cx="${cx}" cy="0" rx="21" ry="45" fill="#fff" stroke="#5AA0D8" stroke-width="2"/>`+
+      items.map(([sh,col,k=1],j)=>{const y=-45+step*(j+1);
+        return sh==='circle'?circ(cx,y,12*k,col):sh==='square'?rectp(cx,y,22*k,22*k,col):tri(cx,y,28*k,col)}).join('')};
+  return svg(oval(-24,left)+oval(24,right));
+}
+function group1(items){
+  const n=items.length,cols=n>2?2:1,rows=Math.ceil(n/cols);
+  const w=cols===2?31:22, sx=cols===2?[-15,15]:[0];
+  return svg(`<ellipse cx="0" cy="0" rx="${cols===2?36:24}" ry="46" fill="#fff" stroke="#5AA0D8" stroke-width="2"/>`+
+    items.map(([sh,col,k=1],j)=>{const x=sx[j%cols],y=-46+92/(rows+1)*(Math.floor(j/cols)+1);
+      return sh==='circle'?circ(x,y,12*k,col):sh==='square'?rectp(x,y,22*k,22*k,col):tri(x,y,28*k,col)}).join(''));
+}
+const r=C.red,b=C.blue,g=C.green,p=C.purple;
+
+/* ---------- questions (same content as the printed test) ---------- */
+const SET1=[
+ // page 1
+ {say:"Look at the picture in the box. Tap the picture that is the same.",ref:pic('apple'),ch:[pic('star',C.yellow),pic('apple'),pic('cup')],a:1,tip:'The red apple is the same picture.'},
+ {say:"Look at the picture in the box. Tap the picture that is different.",ref:pic('ball'),ch:[pic('ball'),pic('fish'),pic('ball')],a:1,tip:'Different means not like the ball. The fish is different.'},
+ {say:"Look at the cup in the box. Tap the picture that is alike.",ref:pic('cup'),ch:[pic('sun'),pic('cup',C.red),pic('leaf')],a:1,tip:'The red cup is alike — a different color, but still a cup.'},
+ {say:"Look at the shape in the box. Tap the picture that is the same shape.",ref:pic('triangle',C.blue),ch:[pic('iceCream'),pic('ball',C.orange),pic('book')],a:0,tip:'The ice cream cone is shaped like a triangle.'},
+ // page 2
+ {say:"Look at the balloon in the box. Tap the picture that is not the same.",ref:pic('balloon',C.blue),ch:[pic('balloon',C.blue),pic('balloon',C.blue),pic('balloon',C.red)],a:2,tip:'The red balloon is not the same as the blue one.'},
+ {say:"Look at the leaf in the box. Tap the picture that is different.",ref:pic('leaf'),ch:[pic('leaf'),pic('sun'),pic('leaf')],a:1,tip:'The sun is different from the leaf.'},
+ {say:"Look at the circle in the box. Tap the picture that is not the same shape.",ref:pic('circle',C.blue),ch:[pic('orange'),pic('clock'),pic('gift')],a:2,tip:'The orange and clock are round. The gift is a square.'},
+ {say:"Look at the triangle in the box. Tap the picture that is not the same shape.",ref:pic('triangle',C.red),ch:[pic('iceCream'),pic('partyHat'),pic('square',C.yellow)],a:2,tip:'The cone and hat are triangles. The square is not.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same.",ref:pic('rectangle',C.green),ch:[pic('triangle',C.purple),pic('rectangle',C.purple),pic('circle',C.purple)],a:1,tip:'The purple rectangle is the same shape. Color does not matter.'},
+ // page 3
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('house'),pic('ladybug'),pic('tree')],a:1,tip:'A ladybug is tiny. Houses and trees are big.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('square',C.blue),ch:[pic('square',C.blue,.6),pic('square',C.yellow),pic('circle',C.blue,1.2)],a:1,tip:'The yellow square is the same shape and size. The blue square is too small.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('triangle',C.yellow),ch:[pic('triangle',C.yellow,1.45),pic('triangle',C.red),pic('hexagon',C.yellow)],a:1,tip:'The red triangle matches. The yellow triangle is too big.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',r],['square',r]],[['circle',b],['square',b]]),
+  ch:[group([['circle',r],['circle',b]],[['square',r],['square',b]]),group([['circle',r],['square',r]],[['circle',b],['square',b]]),group([['circle',r],['square',b]],[['square',r],['circle',b]])],a:0,
+  tip:'The box is sorted by color. Another way is to sort by shape: circles together, squares together.'},
+ // page 4
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('bus'),pic('boat'),pic('button')],a:2,tip:'A button is small. A bus and a boat are big.'},
+ {say:"Tap the thing that is big in real life.",ref:null,ch:[pic('apple'),pic('key'),pic('house')],a:2,tip:'A house is big. An apple and a key are small.'},
+ {say:"Look at the circle in the box. Tap the shape that is the same shape and the same size.",ref:pic('circle',C.red),ch:[pic('circle',C.red,1.35),pic('circle',C.green),pic('circle',C.red,.6)],a:1,tip:'The green circle is the same size. The other red circles are too big or too small.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('hexagon',C.blue),ch:[pic('hexagon',C.yellow,.6),pic('hexagon',C.yellow),pic('hexagon',C.yellow,1.35)],a:1,tip:'The middle hexagon is the same size as the one in the box.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['triangle',g],['triangle',p]],[['circle',g],['circle',p]]),
+  ch:[group([['triangle',g],['triangle',p]],[['circle',g],['circle',p]]),group([['triangle',g],['circle',p]],[['circle',g],['triangle',p]]),group([['triangle',g],['circle',g]],[['triangle',p],['circle',p]])],a:2,
+  tip:'The box is sorted by shape. Another way is by color: green together, purple together.'},
+];
+const y=C.yellow;
+const SET2=[
+ // page 1
+ {say:"Look at the picture in the box. Tap the picture that is the same.",ref:pic('flower'),ch:[pic('fish'),pic('sun'),pic('flower')],a:2,tip:'The flower is the same picture.'},
+ {say:"Look at the car in the box. Tap the picture that is different.",ref:pic('car'),ch:[pic('kite'),pic('car'),pic('car')],a:0,tip:'Different means not like the car. The kite is different.'},
+ {say:"Look at the ball in the box. Tap the picture that is alike.",ref:pic('ball'),ch:[pic('ball',C.red),pic('tree'),pic('key')],a:0,tip:'The red ball is alike — a different color, but still a ball.'},
+ {say:"Look at the shape in the box. Tap the picture that is the same shape.",ref:pic('circle',C.yellow),ch:[pic('gift'),pic('clock'),pic('kite')],a:1,tip:'The clock is round like the circle.'},
+ // page 2
+ {say:"Look at the heart in the box. Tap the picture that is not the same.",ref:pic('heart'),ch:[pic('heart'),pic('heart',C.pink),pic('heart')],a:1,tip:'The pink heart is not the same as the red one.'},
+ {say:"Look at the moon in the box. Tap the picture that is different.",ref:pic('moon'),ch:[pic('star',C.yellow),pic('moon'),pic('moon')],a:0,tip:'The star is different from the moon.'},
+ {say:"Look at the square in the box. Tap the picture that is not the same shape.",ref:pic('square',C.red),ch:[pic('gift'),pic('orange'),pic('square',C.yellow)],a:1,tip:'The gift and yellow square are squares. The orange is round.'},
+ {say:"Look at the rectangle in the box. Tap the picture that is not the same shape.",ref:pic('rectangle',C.purple),ch:[pic('book'),pic('bus'),pic('ball',C.orange)],a:2,tip:'The book and bus are rectangles. The ball is a circle.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same.",ref:pic('star',C.yellow),ch:[pic('hexagon',C.purple),pic('circle',C.purple),pic('star',C.purple)],a:2,tip:'The purple star is the same shape. Color does not matter.'},
+ // page 3
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('ant'),pic('bus'),pic('mountain')],a:0,tip:'An ant is tiny. A bus and a mountain are big.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('circle',C.green),ch:[pic('circle',C.purple),pic('circle',C.green,1.4),pic('square',C.green)],a:0,tip:'The purple circle is the same shape and size. The green circle is too big.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('rectangle',C.blue),ch:[pic('rectangle',C.blue,.6),pic('triangle',C.blue),pic('rectangle',C.red)],a:2,tip:'The red rectangle matches. The blue rectangle is too small.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['triangle',y],['triangle',b]],[['square',y],['square',b]]),
+  ch:[group([['triangle',y],['triangle',b]],[['square',y],['square',b]]),group([['triangle',y],['square',y]],[['triangle',b],['square',b]]),group([['triangle',y],['square',b]],[['square',y],['triangle',b]])],a:1,
+  tip:'The box is sorted by shape. Another way is to sort by color: yellow together, blue together.'},
+ // page 4
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('tree'),pic('coin'),pic('house')],a:1,tip:'A coin is small. A tree and a house are big.'},
+ {say:"Tap the thing that is big in real life.",ref:null,ch:[pic('pencil'),pic('ladybug'),pic('bus')],a:2,tip:'A bus is big. A pencil and a ladybug are small.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('hexagon',C.yellow),ch:[pic('hexagon',C.green),pic('hexagon',C.yellow,.6),pic('hexagon',C.yellow,1.35)],a:0,tip:'The green hexagon is the same size. The yellow ones are too small or too big.'},
+ {say:"Look at the triangle in the box. Tap the shape that is the same shape and the same size.",ref:pic('triangle',C.red),ch:[pic('triangle',C.red,1.4),pic('triangle',C.red,.6),pic('triangle',C.blue)],a:2,tip:'The blue triangle is the same size as the one in the box.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',r],['triangle',r]],[['circle',b],['triangle',b]]),
+  ch:[group([['circle',r],['triangle',b]],[['triangle',r],['circle',b]]),group([['circle',r],['circle',b]],[['triangle',r],['triangle',b]]),group([['circle',r],['triangle',r]],[['circle',b],['triangle',b]])],a:1,
+  tip:'The box is sorted by color. Another way is by shape: circles together, triangles together.'},
+];
+
+const o=C.orange;
+const SET3=[
+ // page 1
+ {say:"Look at the car in the box. Tap the picture that is the same.",ref:pic('car'),ch:[pic('car',C.blue),pic('bus'),pic('car')],a:2,tip:'The red car is exactly the same. The blue car is a different color.'},
+ {say:"Look at the leaf in the box. Tap the picture that is different.",ref:pic('leaf'),ch:[pic('leaf'),pic('tree'),pic('leaf')],a:1,tip:'The tree is green too, but it is a different thing than the leaf.'},
+ {say:"Look at the apple in the box. Tap the picture that is alike.",ref:pic('apple'),ch:[pic('ball',C.red),pic('apple',C.green),pic('heart')],a:1,tip:'The green apple is alike — same thing, different color. The red ball is only the same color.'},
+ {say:"Look at the shape in the box. Tap the picture that is the same shape.",ref:pic('square',C.blue),ch:[pic('ball'),pic('book'),pic('gift')],a:2,tip:'The gift is a square. The ball is blue but round, and the book is a long rectangle.'},
+ // page 2
+ {say:"Look at the bus in the box. Tap the picture that is not the same.",ref:pic('bus'),ch:[pic('bus'),pic('car',C.yellow),pic('bus')],a:1,tip:'The yellow car is not the same as the bus.'},
+ {say:"Look at the sun in the box. Tap the picture that is different.",ref:pic('sun'),ch:[pic('sun'),pic('flower'),pic('sun')],a:1,tip:'The flower is different from the sun.'},
+ {say:"Look at the triangle in the box. Tap the picture that is not the same shape.",ref:pic('triangle',C.green),ch:[pic('partyHat'),pic('mountain'),pic('tree')],a:2,tip:'The hat and mountain are triangles. The tree is green, but its top is round.'},
+ {say:"Look at the circle in the box. Tap the picture that is not the same shape.",ref:pic('circle',C.red),ch:[pic('apple'),pic('clock'),pic('heart')],a:2,tip:'The apple and clock are round. The heart is red, but it is not a circle.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same.",ref:pic('rectangle',C.purple),ch:[pic('square',C.purple),pic('rectangle',C.green),pic('hexagon',C.purple)],a:1,tip:'The green rectangle is the same shape — long like the one in the box. The purple square is not a rectangle.'},
+ // page 3
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('boat'),pic('ladybug'),pic('tree')],a:1,tip:'A ladybug is tiny. A boat and a tree are big.'},
+ {say:"Look at the circle in the box. Tap the shape that is the same shape and the same size.",ref:pic('circle',C.blue),ch:[pic('circle',C.blue,1.2),pic('circle',C.yellow),pic('circle',C.blue,.8)],a:1,tip:'The yellow circle is the same size. The blue ones are a little too big and a little too small.'},
+ {say:"Look at the square in the box. Tap the shape that is the same shape and the same size.",ref:pic('square',C.green),ch:[pic('square',C.green,1.2),pic('rectangle',C.green),pic('square',C.red)],a:2,tip:'The red square matches. The green square is a little too big.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',r],['circle',r,.6]],[['circle',b],['circle',b,.6]]),
+  ch:[group([['circle',r],['circle',b]],[['circle',r,.6],['circle',b,.6]]),group([['circle',r],['circle',r,.6]],[['circle',b],['circle',b,.6]]),group([['circle',r],['circle',b,.6]],[['circle',r,.6],['circle',b]])],a:0,
+  tip:'The box is sorted by color. Another way is by size: big circles together, small circles together.'},
+ // page 4
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('bus'),pic('coin'),pic('mountain')],a:1,tip:'A coin is small. A bus and a mountain are big.'},
+ {say:"Tap the thing that is big in real life.",ref:null,ch:[pic('pencil'),pic('ant'),pic('boat')],a:2,tip:'A boat is big. A pencil and an ant are small.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('hexagon',C.green),ch:[pic('hexagon',C.green,1.25),pic('hexagon',C.blue),pic('hexagon',C.green,.75)],a:1,tip:'The blue hexagon is the same size. Look closely — the green ones are bigger and smaller.'},
+ {say:"Look at the triangle in the box. Tap the shape that is the same shape and the same size.",ref:pic('triangle',C.yellow),ch:[pic('triangle',C.yellow,.8),pic('triangle',C.yellow,1.2),pic('triangle',C.purple)],a:2,tip:'The purple triangle is the same size as the one in the box.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['triangle',g],['triangle',p]],[['square',g],['square',p]]),
+  ch:[group([['triangle',g],['square',p]],[['square',g],['triangle',p]]),group([['triangle',g],['triangle',p]],[['square',g],['square',p]]),group([['triangle',g],['square',g]],[['triangle',p],['square',p]])],a:2,
+  tip:'The box is sorted by shape. Another way is by color: green together, purple together.'},
+];
+const SET4=[
+ // page 1
+ {say:"Look at the kite in the box. Tap the picture that is the same.",ref:pic('kite'),ch:[pic('balloon',C.purple),pic('kite'),pic('star',C.purple),pic('hexagon',C.purple)],a:1,tip:'Only the kite is the same. The others are purple, but they are not kites.'},
+ {say:"Look at the ball in the box. Tap the picture that is different.",ref:pic('ball'),ch:[pic('ball'),pic('ball'),pic('button'),pic('ball')],a:2,tip:'The button is round and blue, but it is not a ball. Look for the holes!'},
+ {say:"Look at the book in the box. Tap the picture that is alike.",ref:pic('book'),ch:[pic('leaf'),pic('book',C.blue),pic('tree'),pic('gift')],a:1,tip:'The blue book is alike — same thing, different color.'},
+ {say:"Look at the shape in the box. Tap the picture that is the same shape.",ref:picr(180,'triangle',C.purple),ch:[pic('kite'),pic('iceCream'),pic('ball',C.purple),pic('gift')],a:1,tip:'The triangle is upside down, but it is still a triangle. The ice cream cone is a triangle too.'},
+ // page 2
+ {say:"Look at the heart in the box. Tap the picture that is not the same.",ref:pic('heart'),ch:[pic('heart'),pic('apple'),pic('heart'),pic('heart')],a:1,tip:'The apple is red, but it is not the same as the heart.'},
+ {say:"Look at the star in the box. Tap the picture that is different.",ref:pic('star',C.yellow),ch:[pic('star',C.yellow),pic('star',C.yellow),pic('sun'),pic('star',C.yellow)],a:2,tip:'The sun is different from the star.'},
+ {say:"Look at the shape in the box. Tap the picture that is not the same shape.",ref:picr(45,'square',C.yellow),ch:[pic('gift'),picr(20,'square',C.blue),pic('sun'),pic('square',C.yellow)],a:2,tip:'The box shows a square turned sideways. The gift and squares are all squares. The sun is round.'},
+ {say:"Look at the rectangle in the box. Tap the picture that is not the same shape.",ref:pic('rectangle',C.blue),ch:[pic('book'),pic('bus'),pic('gift'),picr(90,'rectangle',C.red)],a:2,tip:'The book, bus, and tall red shape are rectangles. The gift is a square.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same.",ref:pic('hexagon',C.green),ch:[picr(30,'hexagon',C.purple),pic('star',C.green),pic('circle',C.green),pic('triangle',C.green)],a:0,tip:'The purple hexagon is the same shape, just turned a little. Count the six sides!'},
+ // page 3
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('tree'),pic('ladybug'),pic('car'),pic('mountain')],a:1,tip:'A ladybug is tiny. Trees, cars, and mountains are big.'},
+ {say:"Look at the circle in the box. Tap the shape that is the same shape and the same size.",ref:pic('circle',C.red),ch:[pic('circle',C.red,1.15),pic('circle',C.red,.85),pic('circle',C.green),pic('square',C.red)],a:2,tip:'The green circle is the same size. The red circles are just a little too big and too small.'},
+ {say:"Look at the triangle in the box. Tap the shape that is the same shape and the same size.",ref:pic('triangle',C.blue),ch:[pic('triangle',C.blue,.85),pic('triangle',C.yellow),pic('triangle',C.blue,1.15),pic('hexagon',C.blue)],a:1,tip:'The yellow triangle is the same size as the one in the box.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['triangle',r],['triangle',r,.6]],[['triangle',b],['triangle',b,.6]]),
+  ch:[group([['triangle',r],['triangle',r,.6]],[['triangle',b],['triangle',b,.6]]),group([['triangle',r],['triangle',b,.6]],[['triangle',r,.6],['triangle',b]]),group([['triangle',r,.6],['triangle',b]],[['triangle',r],['triangle',b,.6]]),group([['triangle',r],['triangle',b]],[['triangle',r,.6],['triangle',b,.6]])],a:3,
+  tip:'The box is sorted by color. Another way is by size: big triangles together, small triangles together.'},
+ // page 4
+ {say:"Tap the thing that is small in real life.",ref:null,ch:[pic('boat'),pic('house'),pic('key'),pic('bus')],a:2,tip:'A key is small. Boats, houses, and buses are big.'},
+ {say:"Tap the thing that is big in real life.",ref:null,ch:[pic('coin'),pic('ant'),pic('mountain'),pic('apple')],a:2,tip:'A mountain is huge! Coins, ants, and apples are small.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('hexagon',C.yellow),ch:[pic('hexagon',C.yellow,.85),pic('hexagon',C.green),pic('hexagon',C.yellow,1.15),pic('hexagon',C.green,.85)],a:1,tip:'The big green hexagon is the same size. The small green one is the right color idea but too small.'},
+ {say:"Look at the rectangle in the box. Tap the shape that is the same shape and the same size.",ref:pic('rectangle',C.green),ch:[pic('rectangle',C.green,1.15),pic('rectangle',C.blue),pic('rectangle',C.green,.85),pic('square',C.green)],a:1,tip:'The blue rectangle is the same size. The green square is not a rectangle.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',r],['circle',b]],[['circle',r,.6],['circle',b,.6]]),
+  ch:[group([['circle',r],['circle',b,.6]],[['circle',r,.6],['circle',b]]),group([['circle',r],['circle',b]],[['circle',r,.6],['circle',b,.6]]),group([['circle',r],['circle',r,.6]],[['circle',b],['circle',b,.6]]),group([['circle',b],['circle',r,.6]],[['circle',r],['circle',b,.6]])],a:2,
+  tip:'The box is sorted by size: big circles together, small circles together. Another way is by color: red together, blue together.'},
+];
+
+const SET5=[
+ // page 1 — which group is sorted by...
+ {say:"Tap the group where the shapes are sorted by color.",ref:null,
+  ch:[group([['circle',r],['square',b]],[['square',r],['circle',b]]),group([['circle',r],['square',r]],[['circle',b],['square',b]]),group([['circle',r],['circle',b]],[['square',r],['square',b]])],a:1,
+  tip:'Sorted by color means all the red shapes together and all the blue shapes together.'},
+ {say:"Tap the group where the shapes are sorted by shape.",ref:null,
+  ch:[group([['triangle',g],['triangle',y]],[['circle',g],['circle',y]]),group([['triangle',g],['circle',g]],[['triangle',y],['circle',y]]),group([['triangle',g],['circle',y]],[['circle',g],['triangle',y]])],a:0,
+  tip:'Sorted by shape means triangles together and circles together, no matter the color.'},
+ {say:"Tap the group where the shapes are sorted by size.",ref:null,
+  ch:[group([['square',p],['square',p,.6]],[['square',o],['square',o,.6]]),group([['square',p],['square',o,.6]],[['square',p,.6],['square',o]]),group([['square',p],['square',o]],[['square',p,.6],['square',o,.6]])],a:2,
+  tip:'Sorted by size means the big squares together and the small squares together.'},
+ {say:"Look at the group in the box. Tap the shape that does not belong.",ref:group1([['circle',r],['circle',r],['circle',r],['square',r]]),
+  ch:[pic('circle',C.red),pic('square',C.red),pic('circle',C.red)],a:1,
+  tip:'The box is a group of red circles. The square is red, but it is not a circle.'},
+ // page 2 — another way
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',b],['triangle',b]],[['circle',o],['triangle',o]]),
+  ch:[group([['circle',b],['triangle',o]],[['triangle',b],['circle',o]]),group([['circle',b],['circle',o]],[['triangle',b],['triangle',o]]),group([['circle',b],['triangle',b]],[['circle',o],['triangle',o]])],a:1,
+  tip:'The box is sorted by color. Another way is by shape: circles together, triangles together.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['square',g],['square',p]],[['circle',g],['circle',p]]),
+  ch:[group([['square',g],['circle',g]],[['square',p],['circle',p]]),group([['square',g],['square',p]],[['circle',g],['circle',p]]),group([['square',g],['circle',p]],[['circle',g],['square',p]])],a:0,
+  tip:'The box is sorted by shape. Another way is by color: green together, purple together.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['triangle',r],['triangle',r,.6]],[['triangle',y],['triangle',y,.6]]),
+  ch:[group([['triangle',r],['triangle',r,.6]],[['triangle',y],['triangle',y,.6]]),group([['triangle',r],['triangle',y,.6]],[['triangle',r,.6],['triangle',y]]),group([['triangle',r],['triangle',y]],[['triangle',r,.6],['triangle',y,.6]])],a:2,
+  tip:'The box is sorted by color. Another way is by size: big triangles together, small triangles together.'},
+ {say:"Look at the group in the box. Tap the shape that does not belong.",ref:group1([['square',b],['square',g],['square',y],['circle',b]]),
+  ch:[pic('square',C.green),pic('square',C.yellow),pic('circle',C.blue)],a:2,
+  tip:'The box is a group of squares in many colors. The circle does not belong.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',g],['circle',g,.6]],[['square',g],['square',g,.6]]),
+  ch:[group([['circle',g],['square',g,.6]],[['circle',g,.6],['square',g]]),group([['circle',g],['square',g]],[['circle',g,.6],['square',g,.6]]),group([['circle',g],['circle',g,.6]],[['square',g],['square',g,.6]])],a:1,
+  tip:'Everything is green, so color cannot help. The box is sorted by shape. Another way is by size.'},
+ // page 3 — three in a group, four choices
+ {say:"Tap the group where the shapes are sorted by color.",ref:null,
+  ch:[group([['circle',r],['square',r],['triangle',r]],[['circle',b],['square',b],['triangle',b]]),group([['circle',r],['circle',b],['square',r]],[['square',b],['triangle',r],['triangle',b]]),group([['circle',r],['square',b],['triangle',r]],[['circle',b],['square',r],['triangle',b]]),group([['triangle',r],['circle',b],['square',r]],[['square',b],['triangle',b],['circle',r]])],a:0,
+  tip:'Only one group has all the red shapes on one side and all the blue shapes on the other.'},
+ {say:"Look at the group in the box. Tap the shape that does not belong.",ref:group1([['triangle',p],['triangle',p],['triangle',p],['triangle',p,.55]]),
+  ch:[pic('triangle',C.purple),pic('triangle',C.purple,.55),pic('triangle',C.purple),pic('triangle',C.purple)],a:1,
+  tip:'They are all purple triangles, but one is small. It does not belong with the big ones.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',o],['square',o],['circle',o]],[['circle',b],['square',b],['square',b]]),
+  ch:[group([['circle',o],['square',b],['circle',o]],[['circle',b],['square',o],['square',b]]),group([['circle',o],['square',o],['circle',o]],[['circle',b],['square',b],['square',b]]),group([['square',o],['circle',b],['square',b]],[['circle',o],['circle',o],['square',b]]),group([['circle',o],['circle',o],['circle',b]],[['square',o],['square',b],['square',b]])],a:3,
+  tip:'The box is sorted by color. Another way is by shape: all the circles together, all the squares together.'},
+ {say:"Tap the group where the shapes are NOT sorted in a way that makes sense.",ref:null,
+  ch:[group([['square',g],['square',y]],[['circle',g],['circle',y]]),group([['square',g],['circle',y]],[['square',y],['circle',g]]),group([['square',g],['circle',g]],[['square',y],['circle',y]]),group([['square',g],['square',g,.6]],[['circle',g],['circle',g,.6]])],a:1,
+  tip:'This one is a mix — the shapes and colors are jumbled. The other groups are sorted by shape, by color, or by shape and size.'},
+ // page 4 — mixed, size and shape review
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['square',r],['square',b]],[['square',r,.6],['square',b,.6]]),
+  ch:[group([['square',r],['square',b,.6]],[['square',r,.6],['square',b]]),group([['square',r],['square',r,.6]],[['square',b],['square',b,.6]]),group([['square',r],['square',b]],[['square',r,.6],['square',b,.6]])],a:1,
+  tip:'The box is sorted by size. Another way is by color: red together, blue together.'},
+ {say:"Look at the group in the box. Tap the shape that does not belong.",ref:group1([['circle',y],['circle',y],['circle',g],['circle',y]]),
+  ch:[pic('circle',C.yellow),pic('circle',C.green),pic('circle',C.yellow)],a:1,
+  tip:'The box is a group of yellow circles. The green circle does not belong.'},
+ {say:"Tap the group where the shapes are sorted by shape.",ref:null,
+  ch:[group([['circle',p],['square',p,.6]],[['circle',p,.6],['square',p]]),group([['circle',p],['circle',p,.6]],[['square',p],['square',p,.6]]),group([['circle',p],['square',p]],[['circle',p,.6],['square',p,.6]])],a:1,
+  tip:'Circles together and squares together. The last group is sorted by size instead.'},
+ {say:"Look at the shape in the box. Tap the shape that is the same shape and the same size.",ref:pic('square',C.purple),ch:[pic('square',C.purple,1.2),pic('square',C.orange),pic('square',C.purple,.8),pic('circle',C.purple)],a:1,tip:'The orange square is the same shape and size.'},
+ {say:"Look at how the shapes in the box are sorted. Tap the group that is sorted another way that makes sense.",
+  ref:group([['circle',g],['triangle',g],['circle',g,.6]],[['circle',p],['triangle',p],['circle',p,.6]]),
+  ch:[group([['circle',g],['circle',g,.6],['triangle',p]],[['triangle',g],['circle',p],['circle',p,.6]]),group([['circle',g],['circle',g,.6],['circle',p],['circle',p,.6]],[['triangle',g],['triangle',p]]),group([['circle',g],['triangle',g],['circle',g,.6]],[['circle',p],['triangle',p],['circle',p,.6]]),group([['circle',g],['triangle',p],['circle',g,.6]],[['circle',p],['triangle',g],['circle',p,.6]])],a:1,
+  tip:'The box is sorted by color. Another way is by shape: all the circles together, the triangles together.'},
+];
+
+/* Level 6: draw a loop around a group. Each item: rule + shapes [shape,color,size]. Positions are shuffled each play. */
+const COLN={[C.red]:'red',[C.blue]:'blue',[C.yellow]:'yellow',[C.green]:'green',[C.purple]:'purple',[C.orange]:'orange'};
+const D=(rule,val,shapes,tipExtra='')=>({draw:{rule,val,shapes},
+  say: rule==='color'?`Draw a circle around all the ${COLN[val]} shapes.`
+     : rule==='shape'?`Draw a circle around all the ${val}s.`
+     : `Draw a circle around all the ${val} shapes.`,
+  tip: (rule==='color'?`One big circle around all the ${COLN[val]} shapes, no matter their shape.`
+     : rule==='shape'?`One big circle around all the ${val}s, no matter their color.`
+     : `One big circle around all the ${val} ones, no matter their color or shape.`)+tipExtra});
+const SET6=[
+ D('color',C.red,[['circle',r],['square',r],['triangle',r],['circle',r,.55],['circle',b],['square',b],['triangle',y],['square',y]]),
+ D('shape','circle',[['circle',r],['circle',b],['circle',g],['circle',y,.55],['square',r],['triangle',b],['square',g],['triangle',y]]),
+ D('color',C.blue,[['triangle',b],['circle',b],['square',b],['triangle',b,.55],['triangle',r],['circle',y],['square',p],['circle',r]]),
+ D('shape','triangle',[['triangle',y],['triangle',p],['triangle',b],['triangle',r,.55],['circle',y],['square',p],['circle',b],['square',r]]),
+ D('size','big',[['circle',g],['square',g],['triangle',g],['circle',b],['circle',g,.55],['square',g,.55],['triangle',g,.55],['circle',b,.55]]),
+ D('shape','square',[['square',o],['square',b],['square',r],['square',g,.55],['circle',o],['triangle',b],['circle',r],['triangle',g]]),
+ D('color',C.green,[['circle',g],['triangle',g],['square',g,.55],['square',g],['circle',b],['triangle',y],['square',b],['circle',y]]),
+ D('size','small',[['circle',r,.55],['square',b,.55],['triangle',y,.55],['circle',g,.55],['circle',r],['square',b],['triangle',y],['circle',g]]),
+ D('shape','circle',[['circle',p],['circle',y],['circle',p,.55],['circle',g],['square',p],['triangle',y],['square',g],['triangle',p]]),
+ D('color',C.yellow,[['square',y],['circle',y,.55],['triangle',y],['circle',y],['square',r],['circle',b],['triangle',p],['square',b]]),
+ D('size','big',[['triangle',r],['circle',b],['square',y],['triangle',p],['triangle',r,.55],['circle',b,.55],['square',y,.55],['circle',p,.55]]),
+ D('shape','triangle',[['triangle',r],['triangle',b,.55],['triangle',g],['triangle',y],['circle',r],['square',b],['circle',g],['square',y]]),
+];
+
+/* ================= GAME 2: Letter sounds — C ================= */
+const W={ // word bank: name, icon, starts with the C sound?
+  cup:['cup',()=>pic('cup',C.red),1], cat:['cat',()=>pic('cat'),1], corn:['corn',()=>pic('corn'),1], cake:['cake',()=>pic('cake'),1],
+  car:['car',()=>pic('car'),1], cap:['cap',()=>pic('cap'),1], coin:['coin',()=>pic('coin'),1], candle:['candle',()=>pic('candle'),1],
+  carrot:['carrot',()=>pic('carrot'),1], can:['can',()=>pic('can'),1], cookie:['cookie',()=>pic('cookie'),1], clock:['clock',()=>pic('clock'),1],
+  cloud:['cloud',()=>pic('cloud'),1], cactus:['cactus',()=>pic('cactus'),1],
+  spoon:['spoon',()=>pic('spoon'),0], fork:['fork',()=>pic('fork'),0], bowl:['bowl',()=>pic('bowl'),0], basket:['basket',()=>pic('basket'),0],
+  apple:['apple',()=>pic('apple'),0], ball:['ball',()=>pic('ball'),0], sun:['sun',()=>pic('sun'),0], fish:['fish',()=>pic('fish'),0],
+  leaf:['leaf',()=>pic('leaf'),0], moon:['moon',()=>pic('moon'),0], tree:['tree',()=>pic('tree'),0], egg:['egg',()=>pic('egg'),0],
+  star:['star',()=>pic('star',C.yellow),0], book:['book',()=>pic('book'),0], boat:['boat',()=>pic('boat'),0], bus:['bus',()=>pic('bus'),0],
+  house:['house',()=>pic('house'),0], pencil:['pencil',()=>pic('pencil'),0], ladybug:['ladybug',()=>pic('ladybug'),0], flower:['flower',()=>pic('flower'),0],
+  hat:['hat',()=>pic('hat'),0], balloon:['balloon',()=>pic('balloon'),0],
+};
+const CSOUND='the C sound, like Cass';
+const cardC=()=>svg(`<text x="0" y="28" font-size="90" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial" font-weight="bold" fill="${C.blue}">c</text>`);
+const cardX=()=>svg(line(-28,-28,28,28,C.red,10)+line(-28,28,28,-28,C.red,10));
+
+// Lesson 1 — tap every picture that starts with C (grid of 6)
+const multi=(...keys)=>({type:'multi',items:keys.map(k=>W[k]),
+  say:`Tap every picture that begins with ${CSOUND}. `+keys.map(k=>W[k][0]).join('. ')+'.',
+  tip:'The C pictures are: '+keys.filter(k=>W[k][2]).map(k=>W[k][0]).join(', ')+'.'});
+const CL1=[
+  multi('cup','spoon','cat','apple','corn','bowl'),
+  multi('fork','cake','sun','car','fish','coin'),
+  multi('cap','leaf','basket','candle','carrot','moon'),
+  multi('tree','can','cookie','egg','clock','star'),
+  multi('cloud','book','cactus','boat','bus','cup'),
+  multi('cat','house','corn','pencil','ladybug','cake'),
+];
+// Lesson 2 — pairs: which one begins with C?
+const pair=(a,b,ans)=>({say:`${W[a][0]}. ${W[b][0]}. Tap the one that begins with ${CSOUND}.`,ref:null,
+  ch:[W[a][1](),W[b][1]()],a:ans,tip:`${W[ans?b:a][0]} begins with the C sound.`,names:[W[a][0],W[b][0]]});
+const CL2=[pair('cup','bowl',0),pair('spoon','carrot',1),pair('cat','fish',0),pair('apple','corn',1),pair('cake','egg',0),pair('hat','cap',1),pair('coin','sun',0),pair('flower','candle',1),pair('can','basket',0),pair('boat','cookie',1)];
+// Lesson 3 — circle (c) or X, one picture at a time
+const cx=k=>({say:`${W[k][0]}. Does ${W[k][0]} begin with ${CSOUND}? Tap the c for yes. Tap the X for no.`,ref:W[k][1](),
+  ch:[cardC(),cardX()],a:W[k][2]?0:1,tip:W[k][2]?`Yes! ${W[k][0]} begins with the C sound.`:`No. ${W[k][0]} does not begin with the C sound.`});
+const CL3=['cup','spoon','cat','basket','corn','ball','cactus','fork','car','moon','cake','bus'].map(cx);
+// Lesson 4 — write the letter c
+const trace=k=>({type:'trace',item:W[k],say:`${W[k][0]} begins with ${CSOUND}. Write a small letter c. Start at the star and follow the dots.`,tip:'Start at the star, curve around like a rainbow, and stop before you close it.'});
+const CL4=['cup','cat','corn','cake','car','coin','candle','cookie'].map(trace);
+
+const GAMES=[
+  {title:'Shapes & Sizes',blurb:'Same and different, shapes, big and small, and sorting. Six levels.',
+   levels:[['Level 1','Warm up',SET1],['Level 2','New pictures',SET2],['Level 3','Tricky colors',SET3],['Level 4','Four choices',SET4],['Level 5','Sorting',SET5],['Level 6','Draw to sort',SET6]]},
+  {title:'Letter Sounds: C',blurb:'Listen for the C sound, like Cass. Four lessons.',
+   levels:[['Lesson 1','Tap the C pictures',CL1],['Lesson 2','Which one?',CL2],['Lesson 3','c or X',CL3],['Lesson 4','Write the letter c',CL4]]},
+];
+let G=0; // current game
+let SETS=GAMES[0].levels.map(l=>l[2]);
+let Q=SET1;
+const PAGES=[4,5,4,5];
+
+/* ---------- state ---------- */
+let i=0, results=[], tries=0;
+const $=id=>document.getElementById(id);
+const starSVG=(on)=>svg(star(0,0,90,on?C.yellow:'#e6e6e6'));
+
+function speak(t){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t);u.rate=.9;u.pitch=1.05;speechSynthesis.speak(u);
+}
+function pageOf(n){let acc=0;for(let k=0;k<PAGES.length;k++){acc+=PAGES[k];if(n<acc)return k+1}return PAGES.length}
+
+function drawStars(){
+  $('stars').innerHTML=Q.map((_,k)=>`<span>${starSVG(results[k]===true)}</span>`).join('');
+}
+function show(n){
+  i=n;tries=0;const q=Q[i];
+  $('where').textContent=`${setName} · Question ${i+1} of ${Q.length}`;
+  $('prompt').textContent=q.say;
+  $('msg').textContent='';$('next').classList.remove('show');
+  $('next').textContent=i===Q.length-1?'See my stars':'Next';
+  $('doneBtn').classList.remove('show');
+  if(q.draw){ $('refwrap').classList.add('hidden');$('choices').classList.add('hidden');$('choices').innerHTML='';
+    $('pad').classList.remove('hidden');$('padbar').classList.remove('hidden'); setupPad(q); drawStars(); speak(q.say); return; }
+  $('q').classList.toggle('tracing',q.type==='trace');
+  if(q.type==='trace'){ $('refwrap').classList.remove('hidden');$('ref').innerHTML=q.item[1]();$('choices').classList.add('hidden');$('choices').innerHTML='';
+    $('pad').classList.remove('hidden');$('padbar').classList.remove('hidden'); setupTrace(q); drawStars(); speak(q.say); return; }
+  if(q.type==='multi'){ $('refwrap').classList.add('hidden');$('pad').classList.add('hidden');$('padbar').classList.add('hidden');$('choices').classList.remove('hidden');
+    $('choices').classList.remove('four');$('choices').classList.add('grid6');
+    $('choices').innerHTML=q.items.map((it,k)=>`<button class="choice m" data-k="${k}" aria-label="${it[0]}">${it[1]()}<span class="nm" data-say="${it[0]}">🔊</span><span class="bubble"></span></button>`).join('');
+    $('doneBtn').classList.add('show'); drawStars(); speak(q.say); return; }
+  $('choices').classList.remove('grid6');
+  $('pad').classList.add('hidden');$('padbar').classList.add('hidden');$('choices').classList.remove('hidden');
+  if(q.ref){$('refwrap').classList.remove('hidden');$('ref').innerHTML=q.ref}else $('refwrap').classList.add('hidden');
+  $('choices').classList.toggle('four',q.ch.length===4);
+  $('choices').innerHTML=q.ch.map((c,k)=>`<button class="choice" data-k="${k}" aria-label="Choice ${k+1}">${c}<span class="bubble"></span></button>`).join('');
+  $('msg').textContent='';$('next').classList.remove('show');
+  $('next').textContent=i===Q.length-1?'See my stars':'Next';
+  drawStars();
+  speak(q.say);
+}
+const CHEERS=['Yes! Great job!','You got it!','Wonderful!','That\u2019s right!','Super!','Nice thinking!'];
+$('choices').addEventListener('click',e=>{
+  const nm=e.target.closest('.nm');if(nm){speak(nm.dataset.say);return}
+  const btn=e.target.closest('.choice');if(!btn)return;
+  const k=+btn.dataset.k,q=Q[i],all=[...document.querySelectorAll('.choice')];
+  if(q.type==='multi'){btn.classList.toggle('picked');speak(q.items[k][0]);return}
+  if(q.names&&!btn.classList.contains('locked')){ /* pairs: say the name too */ }
+  if(k===q.a){
+    btn.classList.add('right');all.forEach(c=>c.classList.add('locked'));
+    if(results[i]===undefined)results[i]=tries===0;
+    const cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+    $('msg').textContent=(tries===0?'⭐ ':'👍 ')+cheer;speak(cheer);
+    drawStars();$('next').classList.add('show');
+  }else{
+    tries++;btn.classList.add('wrong');
+    if(tries===1){$('msg').textContent='Hmm, not that one. Listen again and try!';speak('Not that one. Listen again. '+q.say);
+      setTimeout(()=>btn.classList.remove('wrong'),450);}
+    else{ results[i]=false;
+      all.forEach(c=>{c.classList.add('locked');if(+c.dataset.k===q.a)c.classList.add('right');else c.classList.add('dim')});
+      $('msg').textContent='Here is the answer. '+q.tip;speak('Here is the answer. '+q.tip);
+      drawStars();$('next').classList.add('show');}
+  }
+});
+$('speak').onclick=()=>speak(Q[i].say);
+$('doneBtn').onclick=()=>{const q=Q[i];if(q.type!=='multi')return;const all=[...document.querySelectorAll('.choice')];
+  const picked=all.filter(c=>c.classList.contains('picked')).map(c=>+c.dataset.k);
+  const want=q.items.map((it,k)=>it[2]?k:-1).filter(k=>k>=0);
+  const missed=want.filter(k=>!picked.includes(k)), extra=picked.filter(k=>!want.includes(k));
+  if(!missed.length&&!extra.length){all.forEach(c=>{c.classList.add('locked');if(c.classList.contains('picked'))c.classList.add('right')});
+    if(results[i]===undefined)results[i]=tries===0;const cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+    $('msg').textContent=(tries===0?'⭐ ':'👍 ')+cheer;speak(cheer);$('doneBtn').classList.remove('show');drawStars();$('next').classList.add('show');return}
+  tries++;
+  if(tries<2){const t=extra.length?`${q.items[extra[0]][0]} does not begin with the C sound. Try again!`:`You missed one. Listen again.`;$('msg').textContent=t;speak(t+(extra.length?'':' '+q.say));
+    extra.forEach(k=>all[k].classList.remove('picked'));return}
+  results[i]=false;all.forEach((c,k)=>{c.classList.add('locked');c.classList.remove('picked');if(want.includes(k))c.classList.add('right');else c.classList.add('dim')});
+  $('msg').textContent='Here they are. '+q.tip;speak('Here they are. '+q.tip);$('doneBtn').classList.remove('show');drawStars();$('next').classList.add('show')};
+$('next').onclick=()=>{ if(i<Q.length-1)show(i+1); else finish(); };
+function begin(set){Q=set;GAMES.forEach((g,k)=>{if(g.levels.some(l=>l[2]===set)){G=k;SETS=g.levels.map(l=>l[2])}});const L=GAMES[G].levels.find(l=>l[2]===set);setName=L?L[0]:'Level';
+  $('home').classList.add('hidden');$('start').classList.add('hidden');$('done').classList.add('hidden');$('q').classList.remove('hidden');results=[];show(0)}
+let setName='Level 1';
+function renderGames(){$('games').innerHTML=GAMES.map((g,k)=>`<button class="next show lvl g${k?2:''}" data-g="${k}">${g.title}<small>${g.blurb.split('.')[0]}</small></button>`).join('')}
+function openGame(k){G=k;SETS=GAMES[k].levels.map(l=>l[2]);$('gameTitle').textContent=GAMES[k].title;$('gameBlurb').textContent=GAMES[k].blurb;
+  $('levels').innerHTML=GAMES[k].levels.map((l,j)=>`<button class="next show lvl l${j}" data-set="${j}">${l[0]}<small>${l[1]}</small></button>`).join('');
+  $('home').classList.add('hidden');$('done').classList.add('hidden');$('start').classList.remove('hidden')}
+$('games').addEventListener('click',e=>{const b=e.target.closest('.lvl');if(b)openGame(+b.dataset.g)});
+$('backHome').onclick=()=>{$('start').classList.add('hidden');$('home').classList.remove('hidden')};
+$('doneHome').onclick=()=>{$('done').classList.add('hidden');$('home').classList.remove('hidden')};
+$('levels').addEventListener('click',e=>{const b=e.target.closest('.lvl');if(b)begin(SETS[+b.dataset.set])});
+$('again').onclick=()=>begin(Q);$('other').onclick=()=>begin(SETS[(SETS.indexOf(Q)+1)%SETS.length]);
+renderGames();
+
+function finish(){
+  speechSynthesis.cancel();
+  $('q').classList.add('hidden');$('done').classList.remove('hidden');
+  const got=results.filter(x=>x===true).length;
+  $('doneStars').innerHTML=Q.map((_,k)=>`<span>${starSVG(results[k]===true)}</span>`).join('');
+  $('doneScore').textContent=`${got} out of ${Q.length} stars!`;
+  $('doneTitle').textContent=got===Q.length?'Perfect! All the stars!':got>=Q.length*.8?'Awesome work!':'Great practice!';
+  $('where').textContent=setName+' finished';
+  const missed=Q.map((q,k)=>results[k]!==true?k:null).filter(k=>k!==null);
+  $('review').innerHTML=missed.length?`<b>For a grown-up — ones to practice again:</b><ul style="margin:8px 0 0;padding-left:18px">${missed.map(k=>`<li>Q${k+1}: ${Q[k].tip}</li>`).join('')}</ul>`
+    :'<b>For a grown-up:</b> she got every question right on the first try. Ready for tomorrow!';
+  speak(`${$('doneTitle').textContent} You earned ${got} stars.`);
+}
+
+
+/* ---------- tracing the letter c ---------- */
+const CARC=(()=>{const P=[];for(let a=318;a>=42;a-=6){const r=a*Math.PI/180;P.push([50+25*Math.cos(r),40+25*Math.sin(r)])}return P})();
+function setupTrace(q){
+  padState={pts:[],drawing:false,done:false,trace:true};
+  const dots=CARC.filter((_,k)=>k%3===0).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.6" fill="#b9c4d0"/>`).join('');
+  const [sx,sy]=CARC[0];
+  $('pad').innerHTML=`<svg id="padsvg" viewBox="0 0 100 78" style="overflow:hidden">
+    <rect x="0" y="0" width="100" height="78" fill="#fff"/>
+    <line x1="6" y1="14" x2="94" y2="14" stroke="#e4e9ef" stroke-width="0.8"/><line x1="6" y1="40" x2="94" y2="40" stroke="#e4e9ef" stroke-width="0.8" stroke-dasharray="2 2"/><line x1="6" y1="66" x2="94" y2="66" stroke="#e4e9ef" stroke-width="0.8"/>
+    <path d="M${CARC.map(p=>p.join(' ')).join(' L')}" fill="none" stroke="#dfe6ef" stroke-width="7" stroke-linecap="round"/>${dots}
+    ${star(sx,sy,7,C.yellow).replace('stroke-width="2.4"','stroke-width="0.8"')}
+    <g id="kept"></g>
+    <path id="stroke" fill="none" stroke="#3B7DD8" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  const svgEl=$('padsvg');
+  const toPt=e=>{const rc=svgEl.getBoundingClientRect();const sc=Math.min(rc.width/100,rc.height/78);const ox=(rc.width-100*sc)/2,oy=(rc.height-78*sc)/2;
+    const cl=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));return [cl((e.clientX-rc.left-ox)/sc,1.5,98.5),cl((e.clientY-rc.top-oy)/sc,1.5,76.5)]};
+  const render=()=>{const p=padState.pts;$('stroke').setAttribute('d',p.length?'M'+p.map(a=>a.map(v=>v.toFixed(1)).join(' ')).join(' L'):'')};
+  svgEl.onpointerdown=e=>{if(padState.done)return;padState.drawing=true;padState.pts=[toPt(e)];svgEl.setPointerCapture(e.pointerId);render()};
+  svgEl.onpointermove=e=>{if(!padState.drawing)return;padState.pts.push(toPt(e));render()};
+  svgEl.onpointerup=svgEl.onpointercancel=e=>{if(!padState.drawing)return;padState.drawing=false;judgeTrace(q)};
+}
+function judgeTrace(q){const st=padState,p=st.pts;if(p.length<8){say2('Put your finger on the star and trace the c.');clearStroke(600);return}
+  const d2=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2;
+  const covered=CARC.filter(c=>p.some(pt=>d2(pt,c)<10*10)).length/CARC.length;
+  const stray=p.filter(pt=>!CARC.some(c=>d2(pt,c)<13*13)).length/p.length;
+  if(covered>=.75&&stray<=.25){st.done=true;$('kept').innerHTML=`<path d="${$('stroke').getAttribute('d')}" fill="none" stroke="#7DBB3A" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>`;
+    st.pts=[];$('stroke').setAttribute('d','');if(results[i]===undefined)results[i]=tries===0;
+    const cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];$('msg').textContent=(tries===0?'⭐ ':'👍 ')+cheer+' That is a c!';speak(cheer+' That is a c!');drawStars();$('next').classList.add('show');return}
+  tries++;
+  const what=covered<.75?'Follow all the dots, all the way around. ':'Stay on the dots. ';
+  if(tries<3){say2(what+'Try again!');clearStroke(900);return}
+  results[i]=false;st.done=true;st.pts=[];$('stroke').setAttribute('d','');
+  $('kept').innerHTML=`<path d="M${CARC.map(x=>x.join(' ')).join(' L')}" fill="none" stroke="#7DBB3A" stroke-width="3.4" stroke-linecap="round"/>`;
+  say2('Here is the c. '+q.tip);drawStars();$('next').classList.add('show');
+}
+/* ---------- drawing pad ---------- */
+const SLOTS=[[12,20],[35,20],[65,20],[88,20],[12,58],[35,58],[65,58],[88,58]];
+let padState=null;
+function shapeSVG(sh,col,k,x,y){const s=13*k;
+  return sh==='circle'?circ(x,y,s*.85,col):sh==='square'?rectp(x,y,s*1.5,s*1.5,col):tri(x,y,s*1.9,col)}
+function matches(q,sp){const d=q.draw;
+  return d.rule==='color'?sp[1]===d.val : d.rule==='shape'?sp[0]===d.val : ((sp[2]||1)<1)===(d.val==='small')}
+function setupPad(q){
+  const hits=q.draw.shapes.filter(sp=>matches(q,sp)), rest=q.draw.shapes.filter(sp=>!matches(q,sp));
+  const halves=[[0,1,4,5],[2,3,6,7],[0,1,2,3],[4,5,6,7]]; const side=halves[Math.floor(Math.random()*4)];
+  const other=[0,1,2,3,4,5,6,7].filter(k=>!side.includes(k));
+  const shuf=x=>[...x].sort(()=>Math.random()-.5);
+  const items=[...shuf(hits).map((sp,j)=>({sp,x:SLOTS[shuf(side)[j]][0],y:0,slot:null})), ];
+  items.length=0;
+  const hs=shuf(side), os=shuf(other);
+  shuf(hits).forEach((sp,j)=>items.push({sp,x:SLOTS[hs[j]][0],y:SLOTS[hs[j]][1],hit:true}));
+  shuf(rest).forEach((sp,j)=>items.push({sp,x:SLOTS[os[j]][0],y:SLOTS[os[j]][1],hit:false}));
+  padState={items,pts:[],drawing:false,done:false};
+  $('pad').innerHTML=`<svg id="padsvg" viewBox="0 0 100 78" style="overflow:hidden">
+    <rect x="0" y="0" width="100" height="78" fill="#fff"/>
+    <g id="padshapes">${items.map(it=>`<g class="shp">${shapeSVG(...it.sp.slice(0,2),it.sp[2]||1,it.x,it.y)}</g>`).join('')}</g>
+    <g id="kept"></g>
+    <path id="stroke" fill="none" stroke="#1FA3A3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  $('padshapes').querySelectorAll('[stroke-width]').forEach(e=>e.setAttribute('stroke-width','0.9'));
+  const svgEl=$('padsvg');
+  const toPt=e=>{const rc=svgEl.getBoundingClientRect();const sc=Math.min(rc.width/100,rc.height/78);
+    const ox=(rc.width-100*sc)/2, oy=(rc.height-78*sc)/2;const cl=(v,lo,hi)=>Math.max(lo,Math.min(hi,v));
+    return [cl((e.clientX-rc.left-ox)/sc,1.5,98.5),cl((e.clientY-rc.top-oy)/sc,1.5,76.5)]};
+  svgEl.onpointerdown=e=>{if(padState.done)return;padState.drawing=true;padState.pts=[toPt(e)];svgEl.setPointerCapture(e.pointerId);render()};
+  svgEl.onpointermove=e=>{if(!padState.drawing)return;padState.pts.push(toPt(e));render()};
+  svgEl.onpointerup=svgEl.onpointercancel=e=>{if(!padState.drawing)return;padState.drawing=false;render(true);judge(q)};
+  function render(close){const p=padState.pts;if(!p.length){$('stroke').setAttribute('d','');return}
+    $('stroke').setAttribute('d','M'+p.map(a=>a.map(v=>v.toFixed(1)).join(' ')).join(' L')+(close?' Z':''))}
+}
+function inside(poly,x,y){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [xi,yi]=poly[i],[xj,yj]=poly[j];
+  if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c}return c}
+const say2=t=>{$('msg').textContent=t;speak(t)};
+function judge(q){const st=padState,d=$('stroke').getAttribute('d');
+  const inn=st.pts.length>=10?st.items.filter(it=>inside(st.pts,it.x,it.y)):[];
+  if(!inn.length){say2('Draw one big loop all the way around them.');clearStroke(600);return}
+  const extra=inn.filter(it=>!it.hit), missed=st.items.filter(it=>it.hit&&!inn.includes(it));
+  if(!extra.length&&!missed.length){
+    st.done=true;$('kept').innerHTML=`<path d="${d}" fill="rgba(125,187,58,.15)" stroke="#7DBB3A" stroke-width="2.2" stroke-linejoin="round"/>`;
+    st.pts=[];$('stroke').setAttribute('d','');
+    if(results[i]===undefined)results[i]=tries===0;
+    const cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+    $('msg').textContent=(tries===0?'⭐ ':'👍 ')+cheer;speak(cheer);drawStars();$('next').classList.add('show');return}
+  tries++;
+  const what=extra.length?(extra.length===1?'One of those does not belong. ':'Some of those do not belong. '):(missed.length===1?'You missed one. Make your circle bigger. ':'You missed some. Make your circle bigger. ');
+  if(tries<2){say2(what+'Try again!');clearStroke(900);return}
+  results[i]=false;st.done=true;st.pts=[];$('stroke').setAttribute('d','');
+  const hs=st.items.filter(it=>it.hit),x0=Math.min(...hs.map(h=>h.x))-10,x1=Math.max(...hs.map(h=>h.x))+10,y0=Math.min(...hs.map(h=>h.y))-11,y1=Math.max(...hs.map(h=>h.y))+11;
+  $('kept').innerHTML=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" rx="12" fill="rgba(125,187,58,.12)" stroke="#7DBB3A" stroke-width="1.6" stroke-dasharray="3 2"/>`;
+  say2('Here they are. '+q.tip);drawStars();$('next').classList.add('show');
+}
+function clearStroke(delay=0){setTimeout(()=>{if(padState&&!padState.done){padState.pts=[];$('stroke').setAttribute('d','')}},delay)}
+$('clear').onclick=()=>{if(padState&&!padState.done){padState.pts=[];$('stroke').setAttribute('d','');$('msg').textContent=''}};
+$('toys').innerHTML=[pic('apple'),pic('star',C.yellow),pic('cat'),pic('hexagon',C.blue)].map(s=>`<span>${s}</span>`).join('');
+drawStars();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) { navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
